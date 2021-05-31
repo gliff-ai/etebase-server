@@ -61,8 +61,12 @@ class CollectionItemRevisionInOut(BaseModel):
         for chunk_relation in obj.chunks_relation.all():
             chunk_obj = chunk_relation.chunk
             if context.prefetch == "auto":
-                with open(chunk_obj.chunkFile.path, "rb") as f:
-                    chunks.append((chunk_obj.uid, f.read()))
+                try:
+                    with open(chunk_obj.chunkFile.name, "rb") as f:
+                        chunks.append((chunk_obj.uid, f.read()))
+                except:  # If we are using a filestore like azure, we have a tempfile here
+                    with chunk_obj.chunkFile.file.file as f:
+                        chunks.append((chunk_obj.uid, f.read()))
             else:
                 chunks.append((chunk_obj.uid, None))
         return cls(uid=obj.uid, meta=bytes(obj.meta), deleted=obj.deleted, chunks=chunks)
