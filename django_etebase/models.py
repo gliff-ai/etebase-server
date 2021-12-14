@@ -46,6 +46,7 @@ class Collection(models.Model):
     # The same as main_item.uid, we just also save it here so we have DB constraints for uniqueness (and efficiency)
     uid = models.CharField(db_index=True, unique=True, blank=False, max_length=43, validators=[UidValidator])
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    date_created = models.DateTimeField(auto_now_add=True, null=True)
 
     stoken_annotation = stoken_annotation_builder(["items__revisions__stoken", "members__stoken"])
 
@@ -157,6 +158,7 @@ class CollectionItemRevision(models.Model):
     meta = models.BinaryField(editable=True, blank=False, null=False)
     current = models.BooleanField(db_index=True, default=True, null=True)
     deleted = models.BooleanField(default=False)
+    date_modified = models.DateTimeField(auto_now=True, null=True)
 
     objects: models.manager.BaseManager["CollectionItemRevision"]
 
